@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "log-record"
+version = "0.1.0"
+description = ""
+authors = ["= <janken.wang@hotmail.com>"]
+readme = "README.md"
+packages = [{include = "log_record"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+python-dotenv = "^0.21.1"
+
+
+[tool.poetry.group.dev.dependencies]
+autopep8 = "^2.0.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
