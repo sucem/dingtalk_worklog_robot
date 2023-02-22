@@ -9,11 +9,14 @@ packages = [{include = "log_record"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 python-dotenv = "^0.21.1"
+tinydb = "^4.7.1"
 
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^2.0.1"
 ipykernel = "^6.21.2"
+python-lsp-server = "^1.7.1"
+pytest = "^7.2.1"
 
 [build-system]
 requires = ["poetry-core"]
