@@ -3,9 +3,13 @@ from dotenv import load_dotenv
 
 from .routers import robot
 
-app = FastAPI()
-load_dotenv()
+def init():
+    """side effect"""
+    load_dotenv()
 
+
+init()
+app = FastAPI()
 app.include_router(router=robot.router)
 
 
