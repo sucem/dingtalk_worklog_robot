@@ -1,12 +1,13 @@
 from datetime import datetime
 import os
 
-from fastapi import Header
+from fastapi import Header, HTTPException
 from . import secret
 
-def validate_time(timestamp_now: datetime, req_timestamp: datetime) -> bool:
+
+def validate_time(timestamp_now: datetime, msg_timestamp: datetime) -> bool:
     """validate_date 返回时间戳之间的间隔是否在60分钟以上"""
-    return (timestamp_now - req_timestamp).seconds < 1 * 60 * 60
+    return (timestamp_now - msg_timestamp).seconds < 1 * 60 * 60
 
 
 def validate_robot_sign(timestamp: int, app_sec: str, sign: str):
@@ -20,3 +21,9 @@ def validate_robot_received_msg(timestamp: int = Header(),
     current_time = datetime.now()
     msg_time = datetime.fromtimestamp(timestamp/1000)  # 精确到秒
     app_sec = os.environ.get('app_sec')
+
+    if app_sec is None:
+        raise HTTPException(500, detail="get app secret string failure")
+
+    return (validate_time(timestamp_now=current_time, msg_timestamp=msg_time) 
+            and validate_robot_sign(timestamp, app_sec, sign))
