@@ -1,14 +1,6 @@
-from dataclasses import dataclass
-from datetime import datetime
 from typing import Protocol
 
-
-@dataclass
-class WorkLog():
-    content: str
-    record_time: datetime
-    nick_name: str
-
+from .domains import WorkLog
 
 class Repository(Protocol):
     def save(self, work_log: WorkLog):
