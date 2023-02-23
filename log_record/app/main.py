@@ -1,7 +1,9 @@
+import os
 from fastapi import FastAPI
 from dotenv import load_dotenv
 
 from .routers import robot
+
 
 def init():
     """side effect"""
