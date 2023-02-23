@@ -25,11 +25,11 @@ class DingTalkRobot():
         url = self.token_url.format(app_key, app_sec)
         res = requester(url)
 
-        if res.status_code is not 200:
+        if res.status_code != 200:
             return None
 
         body = res.json()
-        if body['errcode'] is not 0:
+        if body['errcode'] != 0:
             return None
         else:
             return body['access_token']
