@@ -1,7 +1,7 @@
 from datetime import datetime
 from tinydb import Query, TinyDB
 from tinydb.storages import MemoryStorage
-from log_record.domains import WorkLog
+from log_record.modules import WorkLog
 
 from log_record.repositories import FileRepository
 

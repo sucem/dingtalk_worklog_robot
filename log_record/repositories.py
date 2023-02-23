@@ -2,7 +2,7 @@
 """
 
 from datetime import datetime
-from log_record.domains import WorkLog
+from log_record.modules import WorkLog
 from tinydb import TinyDB
 
 

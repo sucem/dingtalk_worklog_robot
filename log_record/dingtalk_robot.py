@@ -1,6 +1,6 @@
 from typing import Optional, Protocol, Any, Callable
 
-from .domains import WorkLog
+from .modules import WorkLog
 import requests
 import json
 

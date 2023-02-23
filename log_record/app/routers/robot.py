@@ -5,7 +5,7 @@ from pydantic import BaseModel, config
 import requests
 from tinydb import TinyDB
 from log_record.dingtalk_robot import DingTalkRobot
-from log_record.domains import WorkLog
+from log_record.modules import WorkLog
 from alibabacloud_dingtalk.robot_1_0.client import Client as DingTalkClient
 from alibabacloud_tea_openapi import models as open_api_models
 from alibabacloud_tea_util import models as util_models
