@@ -13,12 +13,13 @@ from alibabacloud_dingtalk.robot_1_0 import models as dingtalk_models
 
 from log_record.repositories import FileRepository
 
+from ..main import app_key, app_sec, tiny_db
 from ..dependencies.robot import validate_robot_received_msg
 
 
 router = APIRouter()
-db = TinyDB('work_log_db.json')
-repo = FileRepository(db)
+
+repo = FileRepository(tiny_db)
 dingtalk_robot = DingTalkRobot(repo)
 
 
@@ -43,14 +44,9 @@ def create_dingtalk_client() -> DingTalkClient:
 @router.post('/robot', tags=['dingtalk robot'], description="webhook for receive msg")
 def receive_robot_msg(msg: RobotMsg, validated: bool = Depends(validate_robot_received_msg)):
     if validated:
-        now = datetime.now()
         dingtalk_robot.save(WorkLog(content=msg.text.content,
-                                    record_time=now,
+                                    record_time=datetime.now(),
                                     nick_name=msg.senderNick))
-
-        # return the msg to the sender
-        app_key = os.environ.get('app_key')
-        app_sec = os.environ.get('app_sec')
 
         if app_key is None or app_sec is None:
             raise HTTPException(
@@ -62,9 +58,6 @@ def receive_robot_msg(msg: RobotMsg, validated: bool = Depends(validate_robot_re
             raise HTTPException(
                 status_code=400, detail="get user token failure")
         else:
-            print(token)
-            print(msg.conversationId)
-            print(app_key)
             dingtalk_robot.send_worklog_received_message(
                 token,
                 conversation_id=msg.conversationId,
