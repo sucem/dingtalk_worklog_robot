@@ -39,6 +39,8 @@ class Environs():
 
 
 load_dotenv()
+logging.basicConfig(level=logging.DEBUG)
+
 environs = Environs()
 tiny_db = TinyDB(environs.tiny_db_path)
 repo = FileRepository(tiny_db)
@@ -81,6 +83,7 @@ def receive_robot_msg(msg: RobotMsg, validated: bool = Depends(validate_robot_re
                 status_code=400, detail="get user token failure")
         else:
             logging.debug(f"get token success: {token}")
+
             dingtalk_robot.send_worklog_received_message(
                 token,
                 conversation_id=msg.conversationId,

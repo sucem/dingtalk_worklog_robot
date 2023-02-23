@@ -3,6 +3,8 @@ FROM python:3.10
 ENV POETRY_VER=1.3.2
 
 RUN mkdir -p /log-record/log_record
+RUN mkdir data
+
 COPY log_record /log-record/log_record
 COPY pyproject.toml /log-record/
 COPY README.md /log-record/
