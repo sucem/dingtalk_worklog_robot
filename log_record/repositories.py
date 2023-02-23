@@ -1,6 +1,7 @@
 """使用 tinydb 存储工作日志
 """
 
+from datetime import datetime
 from log_record.domains import WorkLog
 from tinydb import TinyDB
 
@@ -11,4 +12,8 @@ class FileRepository():
         self.db = db
 
     def save(self, work_log: WorkLog):
-        self.db.insert(work_log.__dict__)
+        self.db.insert({
+            "content": work_log.content,
+            "record_time": work_log.record_time.timestamp(),
+            "nick_name": work_log.nick_name,
+        })
