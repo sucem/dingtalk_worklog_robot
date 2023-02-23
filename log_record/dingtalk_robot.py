@@ -1,12 +1,12 @@
-from typing import Optional, Protocol, Any, Callable
+import json
+from typing import Any, Callable, Dict, Optional, Protocol
 
 from .modules import WorkLog
-import json
 
 
 class Repository(Protocol):
-    def save(self, work_log: WorkLog):
-        pass
+    def save(self, work_log: WorkLog) -> WorkLog:
+        ...
 
 
 class DingTalkRobot():
@@ -15,9 +15,9 @@ class DingTalkRobot():
     def __init__(self, repo: Repository):
         self.repo = repo
 
-    def save(self, work_log: WorkLog):
-        """save the wor_log to the repo"""
-        self.repo.save(work_log)
+    def save(self, work_log: WorkLog) -> WorkLog:
+        """save the work_log object to the repo, return saved work log info"""
+        return self.repo.save(work_log)
 
     def get_usertoken(self, app_key: str, app_sec: str, requester: Callable[[str], Any]) -> Optional[str]:
         """get_usertoken 使用 app_key 和 app_sec 拼接字符串， 然后使用 requester 发送请求的钉钉的服务器"""
@@ -33,6 +33,7 @@ class DingTalkRobot():
         else:
             return body['access_token']
 
+    # TODO: 可以将 client， model， util_mode 参数去掉, 重构成一个发送对象
     def send_worklog_received_message(self, token: str,
                                       conversation_id: str,
                                       robot_code: str,
