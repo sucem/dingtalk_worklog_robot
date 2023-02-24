@@ -21,28 +21,37 @@ from ..dependencies.robot import validate_robot_received_msg
 router = APIRouter()
 
 
-class Environs():
+class Environs:
     """读取环境变量"""
+
     app_sec: str
     app_key: str
     tiny_db_path = "./data/tiny_db.json"
 
     def __init__(self) -> None:
-        if (app_key := os.environ.get('app_key')) == None or (app_sec := os.environ.get('app_sec')) == None:
-            raise SystemError(
-                'app_key and app_sec environments can not be none')
+        if (app_key := os.environ.get("app_key")) == None or (
+            app_sec := os.environ.get("app_sec")
+        ) == None:
+            raise SystemError("app_key and app_sec environments can not be none")
         else:
             self.app_key = app_key
             self.app_sec = app_sec
 
-        os.environ.get('tiny_db')
+        if db_path := os.environ.get("tiny_db") != None:
+            self.tiny_db_path = db_path
 
 
-load_dotenv()
 logging.basicConfig(level=logging.DEBUG)
+load_dotenv()
+
 
 environs = Environs()
+logging.debug(f"db file: {environs.tiny_db_path}")
+logging.debug(f"app_sec environment: {environs.app_sec}")
+logging.debug(f"app_key environment: {environs.app_key}")
+
 tiny_db = TinyDB(environs.tiny_db_path)
+
 repo = FileRepository(tiny_db)
 dingtalk_robot = DingTalkRobot(repo)
 
@@ -60,27 +69,33 @@ class RobotMsg(BaseModel):
 
 def create_dingtalk_client() -> DingTalkClient:
     config = open_api_models.Config()
-    config.protocol = 'https'
-    config.region_id = 'central'
+    config.protocol = "https"
+    config.region_id = "central"
     return DingTalkClient(config)
 
 
-@router.post('/robot', tags=['dingtalk robot'], description="webhook for receive msg")
-def receive_robot_msg(msg: RobotMsg, validated: bool = Depends(validate_robot_received_msg)):
-    logging.debug(f'receive msg: {msg.text.content} from {msg.senderNick}')
+@router.post("/robot", tags=["dingtalk robot"], description="webhook for receive msg")
+def receive_robot_msg(
+    msg: RobotMsg, validated: bool = Depends(validate_robot_received_msg)
+):
+    logging.debug(f"receive msg: {msg.text.content} from {msg.senderNick}")
 
     if validated:
-        wl = dingtalk_robot.save(WorkLog(content=msg.text.content,
-                                         record_time=datetime.now(),
-                                         nick_name=msg.senderNick))
+        wl = dingtalk_robot.save(
+            WorkLog(
+                content=msg.text.content,
+                record_time=datetime.now(),
+                nick_name=msg.senderNick,
+            )
+        )
         logging.info(f"saved {wl.content} from {wl.nick_name}")
 
         token = dingtalk_robot.get_usertoken(
-            environs.app_key, environs.app_sec, requester=requests.get)
+            environs.app_key, environs.app_sec, requester=requests.get
+        )
         if token is None:
             logging.error("get token failure")
-            raise HTTPException(
-                status_code=400, detail="get user token failure")
+            raise HTTPException(status_code=400, detail="get user token failure")
         else:
             logging.debug(f"get token success: {token}")
 

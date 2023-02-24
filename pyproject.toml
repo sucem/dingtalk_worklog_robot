@@ -21,7 +21,13 @@ autopep8 = "^2.0.1"
 ipykernel = "^6.21.2"
 python-lsp-server = "^1.7.1"
 pytest = "^7.2.1"
+black = "^23.1.0"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = "aliyun"
+url = "http://mirrors.aliyun.com/pypi/simple"
+default = true

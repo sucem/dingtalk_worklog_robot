@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  robot_server:
+    image: work_log:latest
+    env_file: .env
+    environment:
+      - tiny_db=/data
+    ports:
+      - "3350:8080"
+    volumes:
+      - ./data/:/data/
+    
