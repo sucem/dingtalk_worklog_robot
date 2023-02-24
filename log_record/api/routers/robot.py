@@ -1,9 +1,8 @@
-import logging
 from datetime import datetime
 from dotenv import load_dotenv
 
-import requests
-from fastapi import APIRouter, Depends, HTTPException
+
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 
@@ -14,7 +13,6 @@ from ..dependencies.dingtalk.robot import (
     create_dingtalk_robot,
     validate_robot_received_msg,
 )
-from ..dependencies.dingtalk.router import AppEnviron
 
 
 class RobotMsgContent(BaseModel):
@@ -32,23 +30,21 @@ router = APIRouter()
 load_dotenv()
 
 
-@router.post("/robot", tags=["dingtalk robot"], description="webhook for receive msg")
+@router.post(
+    "/robot",
+    tags=["dingtalk robot"],
+    description="receive robot msg router",
+)
 def receive_robot_msg(
     msg: RobotMsg,
-    validated: bool = Depends(validate_robot_received_msg),
     dingtalk_robot: DingTalkRobot = Depends(create_dingtalk_robot),
 ):
-    logging.debug(f"receive msg: {msg.text.content} from {msg.senderNick}")
-
-    if validated:
-        wl = dingtalk_robot.save(
-            WorkLog(
-                content=msg.text.content,
-                record_time=datetime.now(),
-                nick_name=msg.senderNick,
-            )
+    wl = dingtalk_robot.save(
+        WorkLog(
+            content=msg.text.content,
+            record_time=datetime.now(),
+            nick_name=msg.senderNick,
         )
-        logging.info(f"saved {wl.content} from {wl.nick_name}")
+    )
 
-    else:
-        raise HTTPException(status_code=500, detail="sign incorrected!")
+    return wl

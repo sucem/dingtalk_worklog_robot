@@ -1,13 +1,35 @@
 from datetime import datetime
+import os
 
-from fastapi import Depends, File, Header
+from fastapi import Depends, HTTPException, Header
 from tinydb import TinyDB
 from log_record.dingtalk_robot import DingTalkRobot
 
 from log_record.repositories import FileRepository
 
 from . import secret
-from .router import AppEnviron
+
+
+class AppEnviron:
+    """AppEnviron is  Denpend class.
+    Read environment."""
+
+    app_sec: str
+    app_key: str
+    tiny_db = "data/database.json"
+
+    def __init__(self) -> None:
+        app_key = os.environ.get("app_key")
+        app_sec = os.environ.get("app_sec")
+
+        if app_key is None or app_sec is None:
+            raise ValueError("can not read app_key or app_sec environment")
+        else:
+            self.app_key = app_key
+            self.app_sec = app_sec
+
+        if (tiny_db := os.environ.get("tiny_db_path")) != None:
+            self.tiny_db = tiny_db
 
 
 def _validate_time(timestamp_now: datetime, msg_timestamp: datetime) -> bool:
@@ -15,7 +37,7 @@ def _validate_time(timestamp_now: datetime, msg_timestamp: datetime) -> bool:
     return (timestamp_now - msg_timestamp).seconds < 1 * 60 * 60
 
 
-def _validate_robot_sign(timestamp: int, app_sec: str, sign: str):
+def _validate_robot_sign(timestamp: int, app_sec: str, sign: str) -> bool:
     """validate_robot_sign 检查头里面的 sign 和根据 timestamp, app_sec 计算出来的结果是否相等"""
     return sign.encode("utf-8") == secret.cal_sign(str(timestamp), app_sec)
 
@@ -24,7 +46,7 @@ def validate_robot_received_msg(
     timestamp: int = Header(),
     sign: str = Header(),
     app_env: AppEnviron = Depends(AppEnviron),
-) -> bool:
+):
     """validate_robot_received_msg check the msg from user.
     return the msg wheather correct"""
 
@@ -32,11 +54,12 @@ def validate_robot_received_msg(
     msg_time = datetime.fromtimestamp(timestamp / 1000)  # 精确到秒
 
     if app_env.app_sec is None:
-        raise ValueError("app secret is none")
+        raise HTTPException(status_code=400, detail="app_sec or app_key is none")
 
-    return _validate_time(
-        timestamp_now=current_time, msg_timestamp=msg_time
-    ) and _validate_robot_sign(timestamp, app_env.app_sec, sign)
+    if not _validate_time(current_time, msg_time) or not _validate_robot_sign(
+        timestamp, app_env.app_sec, sign
+    ):
+        raise HTTPException(status_code=400, detail="validate sign failure")
 
 
 def create_db(app_env: AppEnviron = Depends()):
