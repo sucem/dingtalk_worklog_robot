@@ -19,20 +19,6 @@ class DingTalkRobot():
         """save the work_log object to the repo, return saved work log info"""
         return self.repo.save(work_log)
 
-    def get_usertoken(self, app_key: str, app_sec: str, requester: Callable[[str], Any]) -> Optional[str]:
-        """get_usertoken 使用 app_key 和 app_sec 拼接字符串， 然后使用 requester 发送请求的钉钉的服务器"""
-        url = self.token_url.format(app_key, app_sec)
-        res = requester(url)
-
-        if res.status_code != 200:
-            return None
-
-        body = res.json()
-        if body['errcode'] != 0:
-            return None
-        else:
-            return body['access_token']
-
     # TODO: 可以将 client， model， util_mode 参数去掉, 重构成一个发送对象
     def send_worklog_received_message(self, token: str,
                                       conversation_id: str,

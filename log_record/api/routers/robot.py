@@ -36,7 +36,6 @@ load_dotenv()
 def receive_robot_msg(
     msg: RobotMsg,
     validated: bool = Depends(validate_robot_received_msg),
-    app_env: AppEnviron = Depends(),
     dingtalk_robot: DingTalkRobot = Depends(create_dingtalk_robot),
 ):
     logging.debug(f"receive msg: {msg.text.content} from {msg.senderNick}")
@@ -50,15 +49,6 @@ def receive_robot_msg(
             )
         )
         logging.info(f"saved {wl.content} from {wl.nick_name}")
-
-        token = dingtalk_robot.get_usertoken(
-            app_env.app_key, app_env.app_sec, requester=requests.get
-        )
-        if token is None:
-            logging.error("get token failure")
-            raise HTTPException(status_code=400, detail="get user token failure")
-        else:
-            logging.debug(f"get token success: {token}")
 
     else:
         raise HTTPException(status_code=500, detail="sign incorrected!")
