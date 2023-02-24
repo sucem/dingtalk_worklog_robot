@@ -13,7 +13,6 @@ WORKDIR /log-record
 
 RUN pip install poetry==${POETRY_VER} -i https://pypi.tuna.tsinghua.edu.cn/simple
 RUN poetry config virtualenvs.create false
-RUN poetry source add --default tuna https://pypi.tuna.tsinghua.edu.cn/simple
 RUN poetry install --only main 
 
 ENTRYPOINT [ "uvicorn", "--host", "0.0.0.0", "--port", "8080", "log_record.api.main:app" ]
